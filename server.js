@@ -14,7 +14,6 @@ const sql = new Pool({
     port: 5432
 })
 
-const list = []
 
 server.get('/users', async (req, res) => {
     try {
@@ -41,6 +40,25 @@ server.post('/users', async (req, res) => {
         res.status(500).json({ message: error, ok: false })
 
     }})
+
+    server.post('/login', async (req, res) => {
+        const name = req.body.name;
+        const email = req.body.email;
+        const password = req.body.password;
+        const profile = req.body.profile;
+
+        try {
+            const response = await sql.query('SELECT * FROM users WHERE email = $1 AND password = $2', [email, password])
+            if (response.rows.length > 0) {
+                return res.json({ message: 'Login bem sucedido!', ok: true })
+            } else {
+                return res.status(401).json({ message: 'Credenciais inválidas', ok: false })
+            }
+        }
+        catch (error) {
+            res.status(500).json({ message: error, ok: false })
+    
+        }})
 
 server.listen(3000, () => {
     console.log('Ta rodando!: http://localhost:3000/')
